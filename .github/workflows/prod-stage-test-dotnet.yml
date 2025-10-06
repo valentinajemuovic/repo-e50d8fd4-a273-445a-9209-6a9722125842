@@ -1,0 +1,20 @@
+name: prod-stage-test-dotnet
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Release System
+      uses: ./.github/actions/release-system-test-dotnet
+      with:
+        working-directory: system-test-dotnet

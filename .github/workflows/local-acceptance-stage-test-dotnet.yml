@@ -1,0 +1,42 @@
+name: local-acceptance-stage-test-dotnet
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+        - 'system-test-dotnet/**'
+        - '.github/workflows/local-acceptance-stage-test-dotnet.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+        - 'system-test-dotnet/**'
+        - '.github/workflows/local-acceptance-stage-test-dotnet.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: system-test-dotnet
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET Environment
+      uses: ./.github/actions/setup-dotnet-environment
+      with:
+        working-directory: system-test-dotnet
+        dotnet-version: 8.0.x
+        install-playwright: true
+
+    - name: Docker Compose Up
+      run: docker compose up -d
+
+    - name: Smoke Tests
+      run: dotnet test --filter "FullyQualifiedName~Optivem.AtddAccelerator.Template.SystemTest.SmokeTests"

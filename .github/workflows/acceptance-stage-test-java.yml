@@ -1,0 +1,39 @@
+name: acceptance-stage-test-java
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+        - 'system-test-java/**'
+        - '.github/workflows/acceptance-stage-test-java.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+        - 'system-test-java/**'
+        - '.github/workflows/acceptance-stage-test-java.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Release System
+      uses: ./.github/actions/release-system-test-java
+      with:
+        working-directory: system-test-java
+
+    - name: Run Acceptance Tests
+      run: echo "Run Acceptance Tests"
+
+    - name: Run External System Contract Tests
+      run: echo "Run External System Contract Tests"
+
+    - name: Run E2E Tests
+      run: echo "Run E2E Tests"

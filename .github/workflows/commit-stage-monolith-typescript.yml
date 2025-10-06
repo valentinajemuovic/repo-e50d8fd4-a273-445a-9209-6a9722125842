@@ -1,0 +1,45 @@
+name: commit-stage-monolith-typescript
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+        - 'monolith-typescript/**'
+        - '.github/workflows/commit-stage-monolith-typescript.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+        - 'monolith-typescript/**'
+        - '.github/workflows/commit-stage-monolith-typescript.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup TypeScript Environment
+      uses: ./.github/actions/setup-typescript-environment
+      with:
+        working-directory: monolith-typescript
+        node-version: 22.x
+        cache-dependency-path: monolith-typescript/package-lock.json
+        run-build: true
+        install-playwright: false
+
+    - name: Build and Push Docker Image
+      uses: ./.github/actions/build-push-docker
+      with:
+        working-directory: monolith-typescript
+        image-name: monolith-typescript
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-actor: ${{ github.actor }}
+        github-repository: ${{ github.repository }}
+        github-sha: ${{ github.sha }}

@@ -1,0 +1,40 @@
+name: local-acceptance-stage-test-java
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+        - 'system-test-java/**'
+        - '.github/workflows/local-acceptance-stage-test-java.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+        - 'system-test-java/**'
+        - '.github/workflows/local-acceptance-stage-test-java.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: system-test-java
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Java Environment
+      uses: ./.github/actions/setup-java-environment
+      with:
+        working-directory: system-test-java
+
+    - name: Docker Compose Up
+      run: docker compose up -d
+
+    - name: Run Smoke Tests
+      run: ./gradlew test --tests com.optivem.atddaccelerator.template.systemtest.smoketest.*

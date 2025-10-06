@@ -1,0 +1,45 @@
+name: commit-stage-monolith-java
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+        - 'monolith-java/**'
+        - '.github/workflows/commit-stage-monolith-java.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+        - 'monolith-java/**'
+        - '.github/workflows/commit-stage-monolith-java.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Java Environment
+        uses: ./.github/actions/setup-java-environment
+        with:
+          working-directory: monolith-java
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+        working-directory: monolith-java
+
+      - name: Build and Push Docker Image
+        uses: ./.github/actions/build-push-docker
+        with:
+          working-directory: monolith-java
+          image-name: monolith-java
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-actor: ${{ github.actor }}
+          github-repository: ${{ github.repository }}
+          github-sha: ${{ github.sha }}
